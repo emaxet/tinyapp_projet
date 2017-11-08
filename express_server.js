@@ -1,13 +1,15 @@
-const express    = require("express"),
-      app        = express(),
-      PORT       = process.env.PORT || 3000, // 8080 is default. Otherwise if a port is specified as an environmental variable, it's used.
-      bodyParser = require("body-parser"),
-      ejs        = require("ejs"),
-    cookieParser = require('cookie-parser');
+const express      = require("express"),
+      app          = express(),
+      PORT         = process.env.PORT || 3000, // 8080 is default. Otherwise if a port is specified as an environmental variable, it's used.
+      bodyParser   = require("body-parser"),
+      ejs          = require("ejs"),
+      cookieParser = require('cookie-parser'),
+      path         = require('path');
 
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
+app.use(express.static(path.join(__dirname, 'public')));
 
 function generateRandomString() {
   let shortURL = "";

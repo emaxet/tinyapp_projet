@@ -1,19 +1,19 @@
 <% include partials/_header.ejs%>
 
-<div style="text-align: center; margin-top: 15%">
+<div>
   <h1>URL Breakdown</h1>
   <br>
-  <h2>Original URL:  <span style="font-size:0.75em"><%= longURL %></span></h2>
-  <h2>Shortened URL:  <span style="font-size:0.75em"><%= shortURL %></span></h2>
+  <h2>Original URL:  <span><%= longURL %></span></h2>
+  <h2>Shortened URL:  <span><%= shortURL %></span></h2>
   <br>
-  <a style="padding: 10px" class="badge badge-primary" href=<%= longURL %>>Follow The Link!</a>
-  <a style="padding: 10px" class="badge badge-primary" href="/urls">See All Shortened URLs</a>
+  <a class="badge badge-primary nav-button" href=<%= longURL %>>Follow The Link!</a>
+  <a class="badge badge-primary nav-button" href="/urls">See All Shortened URLs</a>
   <br><br><br>
   <h2>Update Your URL</h2>
   <br>
-  <form action="/urls/<%=shortURL%>/update" method="POST">
-    <input style="padding: 5px" type="text" name="update" placeholder="Update the URL here">
-    <button style="padding: 5px">Shorten It</button>
+  <form id="updateURL" action="/urls/<%=shortURL%>/update" method="POST">
+    <input type="text" name="update" placeholder="Update the URL here">
+    <button>Update URL</button>
   </form>
 </div>
 

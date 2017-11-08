@@ -1,0 +1,51 @@
+body {
+  background: skyblue;
+  background: -webkit-linear-gradient(left, skyblue, white);
+  background: -o-linear-gradient(left, skyblue, white );
+  background: -moz-linear-gradient(left, skyblue, white);
+  background: linear-gradient(to right, skyblue, white);
+}
+
+div {
+  text-align: center;
+  margin-top: 15%;
+}
+
+li {
+  list-style-type: none;
+  text-align: center;
+  line-height: 30px;
+  font-size: 20px;
+}
+
+#longURL {
+  padding: 5px;
+}
+
+#deleteURL {
+  display: inline-block;
+}
+
+#deleteURL button {
+  margin-left:10px;
+  font-weight: bold;
+  background-color: rgba(255, 255, 255, 0);
+  border: none;
+  color: #b22c2c
+}
+
+a.badge.badge-primary.nav-button {
+  padding: 10px;
+}
+
+h2 span {
+  font-size: 0.75em;
+}
+
+input {
+  padding: 5px;
+}
+
+button {
+  padding: 5px;
+}
