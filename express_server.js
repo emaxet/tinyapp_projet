@@ -91,6 +91,11 @@ app.post("/urls/:id/delete", (req, res) => {
   res.redirect("/urls");
 });
 
+app.post("/logout", (req, res) => {
+  console.log(req.body.username);
+  res.clearCookie("username");
+  res.redirect("/urls");
+});
 
 
 app.listen(PORT, () => {
