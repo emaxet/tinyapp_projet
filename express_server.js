@@ -67,6 +67,12 @@ app.get("/urls.json", (req, res) => {
 
 // UPDATE
 
+app.post("/urls/:id/update", (req,res) => {
+  var newURL = req.body.update;
+  urlDatabase[req.params.id] = req.body.update;
+  res.redirect("/urls");
+});
+
 // DELETE
 
 app.post("/urls/:id/delete", (req, res) => {
