@@ -1,11 +1,13 @@
 const express    = require("express"),
       app        = express(),
-      PORT       = process.env.PORT || 8080, // 8080 is default. Otherwise if a port is specified as an environmental variable, it's used.
+      PORT       = process.env.PORT || 3000, // 8080 is default. Otherwise if a port is specified as an environmental variable, it's used.
       bodyParser = require("body-parser"),
-      ejs        = require("ejs");
+      ejs        = require("ejs"),
+    cookieParser = require('cookie-parser');
 
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(cookieParser());
 
 function generateRandomString() {
   let shortURL = "";
@@ -46,18 +48,21 @@ app.post("/login", (req, res) => {
 // READ
 
 app.get("/urls", (req, res) => {
-  let templateVars = { urls: urlDatabase };
-  res.render("urls_index", templateVars);
+  res.render("urls_index", {
+    urls: urlDatabase,
+    username: req.cookies.username
+  });
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  res.render("urls_new", { username: req.cookies.username });
 });
 
 app.get("/urls/:id", (req, res) => {
   res.render("urls_show", {
     shortURL: req.params.id,
-    longURL: urlDatabase[req.params.id]
+    longURL: urlDatabase[req.params.id],
+    username: req.cookies.username
   });
 });
 

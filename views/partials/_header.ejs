@@ -11,9 +11,11 @@
 
 <nav class="navbar navbar-light bg-faded">
   <a class="navbar-brand" href="#">Tiny App</a>
+  <ul class="navbar-nav navbar-right">
+      <li style="position: absolute; top: 13px; right: 300px; font-size: 20px">Hey There, <%= username %>!</li>
+    </ul>
   <form class="form-inline my-2 my-lg-0" action="/login" method="POST">
     <input style="margin-right: 10px" type="text" name="username" placeholder="Username">
     <button>Login</button>
 </form>
 </nav>
-
