@@ -99,6 +99,8 @@ app.post("/register", (req, res) => {
     'shortURLs': []
   }
 
+  console.log(users);
+
   req.session.user_id = userID;
   res.redirect("/urls");
   } else {
@@ -278,3 +280,4 @@ app.post("/logout", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
+

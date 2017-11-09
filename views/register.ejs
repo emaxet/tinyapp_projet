@@ -8,14 +8,18 @@
       <input type="password" name="password" placeholder="password">
       <button>Register</button>
     </form>
+
     <% if (error) { %>
+
       <p class="errorMessage">Please input both an email address and password</p>
-    <% } %>
-    <% if (emailExists) { %>
+
+    <% }
+    if (emailExists) { %>
+
       <p class="errorMessage">That email address has already been assigned to a user!</p>
+
     <% } %>
+
   </div>
-
-
 
 <% include partials/_footer %>

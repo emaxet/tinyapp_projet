@@ -1,8 +1,6 @@
 <% include partials/_header.ejs%>
 
 <div class="wrapper">
-  <h1>URL Breakdown</h1>
-  <br>
   <h2>Original URL:  <span><%= longURL %></span></h2>
   <h2>Shortened URL:  <span><%= shortURL %></span></h2>
   <br>
@@ -12,22 +10,28 @@
   <% if(cookie) {
     users[cookie]["shortURLs"].forEach((url) => {
       if (url === shortURL) {%>
-  <form id="deleteButton" action="/urls/<%= shortURL %>/delete" method="POST">
-    <input type="hidden" name="delete" value="<%= shortURL %>">
-    <button id="showPageDelete" class="badge badge-primary nav-button">Get Rid Of This URL</button>
-  </form>
-  <br><br><br>
-  <h2>Change <span id="changeURL"><%= longURL %></span> to...</h2>
-  <br>
-  <% if (!error) {%>
-    <form id="updateURL" action="/urls/<%=shortURL%>/update" method="POST">
-      <input type="text" name="update" placeholder="Input edited URL here">
-      <button>Update URL</button>
-    </form>
-  <% } else {%>
-    <p class="errorMessage">Unfortunately, you cannot edit another user's URL. Sorry!</p>
-  <% } %>
-     <%}
+
+      <form id="deleteButton" action="/urls/<%= shortURL %>/delete" method="POST">
+        <input type="hidden" name="delete" value="<%= shortURL %>">
+        <button id="showPageDelete" class="badge badge-primary nav-button">Get Rid Of This URL</button>
+      </form>
+      <br><br><br>
+      <h2>Change <span id="changeURL"><%= longURL %></span> to...</h2>
+      <br>
+
+      <% if (!error) {%>
+
+        <form id="updateURL" action="/urls/<%=shortURL%>/update" method="POST">
+          <input type="text" name="update" placeholder="Input edited URL here">
+          <button>Update URL</button>
+        </form>
+
+      <% } else { %>
+
+        <p class="errorMessage">Unfortunately, you cannot edit another user's URL. Sorry!</p>
+
+      <% }
+      }
     });
   } %>
 </div>

@@ -1,28 +1,38 @@
 <% include partials/_header %>
 
 <div class="wrapper">
-  <h1>Your Tiny Urls</h1>
-  <br>
+  <h1>Your Tiny Urls</h1><br>
   <ul>
-    <% if(cookie) {%>
-    <% users[cookie]["shortURLs"].forEach((shortURL) => { %>
+
+    <% if(cookie) {
+      users[cookie]["shortURLs"].forEach((shortURL) => { %>
+
     <li> <a href="/urls/<%= shortURL %>"><%= urls[shortURL] %> : <%= shortURL %></a>
       <form id="deleteURL" action="/urls/<%= shortURL %>/delete" method="POST">
         <input type="hidden" name="delete" value="<%= shortURL %>">
         <button>x</button>
-      </form></li>
-    <% }); %>
-    <% } else { %>
+      </form>
+    </li>
+
+    <% });
+    } else { %>
+
     <br>
     <p>Welcome to TinyApp! Please <a href="/login">login</a> or <a href="/register">register</a> to start tinifying URLs!</p>
+
     <% } %>
+
     <br>
     <a style="margin-right: 30px" class="badge badge-primary nav-button" href="/urls/new">Submit URL For Shortening</a>
   </ul>
+
   <% if(error) { %>
-  <br>
-  <p class="errorMessage">Please <a href="/login">login</a> or <a href="/register">register</a> to tinify URLs</p>
+
+    <br>
+    <p class="errorMessage">Please <a href="/login">login</a> or <a href="/register">register</a> to tinify URLs</p>
+
   <% } %>
+
 </div>
 
 <% include partials/_footer %>
