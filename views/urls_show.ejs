@@ -7,14 +7,18 @@
   <h2>Shortened URL:  <span><%= shortURL %></span></h2>
   <br>
   <a class="badge badge-primary nav-button" href=<%= longURL %>>Follow The Link!</a>
-  <a class="badge badge-primary nav-button" href="/urls">See All Shortened URLs</a>
+  <a class="badge badge-primary nav-button" href="/urls">See Your Shortened URLs</a>
   <br><br><br>
   <h2>Update Your URL</h2>
   <br>
-  <form id="updateURL" action="/urls/<%=shortURL%>/update" method="POST">
-    <input type="text" name="update" placeholder="Update the URL here">
-    <button>Update URL</button>
-  </form>
+  <% if (!error) {%>
+    <form id="updateURL" action="/urls/<%=shortURL%>/update" method="POST">
+      <input type="text" name="update" placeholder="Update the URL here">
+      <button>Update URL</button>
+    </form>
+  <% } else {%>
+    <p class="errorMessage">Unfortunately, you cannot edit another user's URL. Sorry!</p>
+  <% } %>
 </div>
 
 <% include partials/_footer %>

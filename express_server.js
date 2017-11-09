@@ -139,7 +139,8 @@ app.get("/urls/:id", (req, res) => {
     shortURL: req.params.id,
     longURL: urlDatabase[req.cookies.user_id][req.params.id],
     users : users,
-    cookie: req.cookies.user_id
+    cookie: req.cookies.user_id,
+    error: false
   });
 });
 
@@ -163,8 +164,18 @@ app.get("/login", (req, res) => {
 // UPDATE
 
 app.post("/urls/:id/update", (req,res) => {
-  var newURL = req.body.update;
-  urlDatabase[req.cookies.user_id][req.params.id] = req.body.update;
+  if(req.cookies.user_id) {
+    var newURL = req.body.update;
+    urlDatabase[req.cookies.user_id][req.params.id] = req.body.update;
+  } else {
+    res.render("urls_show", {
+      shortURL: req.params.id,
+      longURL: urlDatabase[req.cookies.user_id][req.params.id],
+      users : users,
+      cookie: req.cookies.user_id,
+      error: true
+    });
+  }
   res.redirect("/urls");
 });
 
