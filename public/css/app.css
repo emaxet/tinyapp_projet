@@ -22,6 +22,15 @@ li {
   padding: 5px;
 }
 
+#showPageDelete {
+  margin-top: 10px;
+  background-color: rgba(255, 255, 255, 0);
+  color: #b22c2c;
+  border: none;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
 #deleteURL {
   display: inline-block;
 }
@@ -31,11 +40,16 @@ li {
   font-weight: bold;
   background-color: rgba(255, 255, 255, 0);
   border: none;
-  color: #b22c2c
+  color: #b22c2c;
 }
 
 a.badge.badge-primary.nav-button {
   padding: 10px;
+}
+
+#showPageDelete {
+  padding: 10px;
+  border: none;
 }
 
 h2 span {
@@ -48,6 +62,7 @@ input {
 
 button {
   padding: 5px;
+  cursor: pointer;
 }
 
 .errorMessage {

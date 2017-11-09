@@ -18,17 +18,18 @@ function generateRandomString() {
     shortURL += possible[Math.floor(Math.random() * possible.length)];
   }
   return shortURL
+};
+
+function shortenURL(userID, shortURL, longURL) {
+  urlDatabase[shortURL] = longURL;
+  users[userID]["shortURLs"].push(shortURL);
 }
 
 // URL DALTA
 
 let urlDatabase = {
-  "userRandomID": {
-    "b2xVn2": "http://www.lighthouselabs.ca"
-  },
-  "user2RandomID": {
+    "b2xVn2": "http://www.lighthouselabs.ca",
     "9sm5xK": "http://www.google.com"
-  }
 };
 
 // USER DATA
@@ -37,12 +38,14 @@ const users = {
   "userRandomID": {
     id: "userRandomID",
     email: "user@example.com",
-    password: "purple-monkey-dinosaur"
+    password: "purple-monkey-dinosaur",
+    shortURLs: ["b2xVn2"]
   },
  "user2RandomID": {
     id: "user2RandomID",
     email: "user2@example.com",
-    password: "dishwasher-funk"
+    password: "dishwasher-funk",
+    shortURLs: ["9sm5xK"]
   }
 };
 
@@ -64,12 +67,7 @@ app.post("/urls", (req, res) => {
       shortURL = generateRandomString(),
       userID   = req.cookies.user_id;
 
-  if (!urlDatabase[userID]) {
-  urlDatabase[userID] = {};
-  urlDatabase[userID][shortURL] = longURL;
-  } else {
-  urlDatabase[userID][shortURL] = longURL;
-  }
+  shortenURL(userID, shortURL, longURL);
 
   res.redirect(`/urls/${shortURL}`);
 });
@@ -81,12 +79,14 @@ app.post("/register", (req, res) => {
       password = req.body.password,
       userID   = generateRandomString();
 
-  users[userID] = {
-    'id'      : userID,
-    'email'   : email,
-    'password': password
-  }
   if (email && password){
+   users[userID] = {
+    'id'       : userID,
+    'email'    : email,
+    'password' : password,
+    'shortURLs': []
+  }
+
   res.cookie("user_id", userID);
   res.redirect("/urls");
   } else {
@@ -121,7 +121,8 @@ app.get("/urls", (req, res) => {
     urls: urlDatabase,
     users: users,
     cookie: req.cookies.user_id,
-    error: false
+    error: false,
+    deleteError: false
   });
 });
 
@@ -137,7 +138,7 @@ app.get("/urls/:id", (req, res) => {
 
   res.render("urls_show", {
     shortURL: req.params.id,
-    longURL: urlDatabase[req.cookies.user_id][req.params.id],
+    longURL: urlDatabase[req.params.id],
     users : users,
     cookie: req.cookies.user_id,
     error: false
@@ -145,8 +146,8 @@ app.get("/urls/:id", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  shortURL = req.params.shortURL;
-  res.redirect(urlDatabase[req.cookies.user_id][shortURL]);
+  let shortURL = req.params.shortURL;
+  res.redirect(urlDatabase[shortURL]);
 });
 
 app.get("/urls.json", (req, res) => {
@@ -164,27 +165,45 @@ app.get("/login", (req, res) => {
 // UPDATE
 
 app.post("/urls/:id/update", (req,res) => {
-  if(req.cookies.user_id) {
-    var newURL = req.body.update;
-    urlDatabase[req.cookies.user_id][req.params.id] = req.body.update;
-  } else {
-    res.render("urls_show", {
-      shortURL: req.params.id,
-      longURL: urlDatabase[req.cookies.user_id][req.params.id],
-      users : users,
-      cookie: req.cookies.user_id,
-      error: true
-    });
-  }
-  res.redirect("/urls");
+  let shortURL = req.params.id,
+      userURLs = users[req.cookies.user_id]['shortURLs'],
+      newURL   = req.body.update;
+
+  userURLs.forEach((url) => {
+    if (url === shortURL) {
+      urlDatabase[shortURL] = req.body.update;
+      res.redirect("/urls");
+    }
+  });
+  res.render("urls_show", {
+    shortURL: req.params.id,
+    longURL: urlDatabase[shortURL],
+    users : users,
+    cookie: req.cookies.user_id,
+    error: true
+  });
 });
 
 // DELETE
 
 app.post("/urls/:id/delete", (req, res) => {
-  let id = req.body.delete;
-  delete urlDatabase[req.cookies.user_id][id];
-  res.redirect("/urls");
+  let shortURL = req.body.delete,
+      userURLs = users[req.cookies.user_id]['shortURLs'];
+
+  userURLs.forEach((url) => {
+    if (url === shortURL) {
+      let urlIndex = userURLs.indexOf(url);
+      userURLs.splice(urlIndex, 1);
+      delete urlDatabase[shortURL];
+      res.redirect("/urls");
+    }
+  });
+  res.render("urls_index", {
+    urls: urlDatabase,
+    users: users,
+    cookie: req.cookies.user_id,
+    error: false,
+  });
 });
 
 app.post("/logout", (req, res) => {

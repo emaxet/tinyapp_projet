@@ -6,8 +6,16 @@
   <h2>Original URL:  <span><%= longURL %></span></h2>
   <h2>Shortened URL:  <span><%= shortURL %></span></h2>
   <br>
-  <a class="badge badge-primary nav-button" href=<%= longURL %>>Follow The Link!</a>
+  <a class="badge badge-primary nav-button" href=<%= longURL %>>Follow This URL</a>
   <a class="badge badge-primary nav-button" href="/urls">See Your Shortened URLs</a>
+
+  <% if(cookie) {
+    users[cookie]["shortURLs"].forEach((url) => {
+      if (url === shortURL) {%>
+  <form id="deleteButton" action="/urls/<%= shortURL %>/delete" method="POST">
+    <input type="hidden" name="delete" value="<%= shortURL %>">
+    <button id="showPageDelete" class="badge badge-primary nav-button">Get Rid Of This URL</button>
+  </form>
   <br><br><br>
   <h2>Update Your URL</h2>
   <br>
@@ -19,6 +27,9 @@
   <% } else {%>
     <p class="errorMessage">Unfortunately, you cannot edit another user's URL. Sorry!</p>
   <% } %>
+     <%}
+    });
+  } %>
 </div>
 
 <% include partials/_footer %>
