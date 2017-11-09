@@ -23,10 +23,10 @@ function generateRandomString() {
 // URL DALTA
 
 let urlDatabase = {
-  "B2kR0s": {
+  "userRandomID": {
     "b2xVn2": "http://www.lighthouselabs.ca"
   },
-  "Uj23lS": {
+  "user2RandomID": {
     "9sm5xK": "http://www.google.com"
   }
 };
@@ -59,9 +59,18 @@ app.get("/", (req, res) => {
 // CREATE NEW SHORT URL
 
 app.post("/urls", (req, res) => {
-  let longURL = req.body.longURL;
-  let shortURL = generateRandomString();
-  urlDatabase[shortURL] = longURL;
+
+  var longURL  = req.body.longURL,
+      shortURL = generateRandomString(),
+      userID   = req.cookies.user_id;
+
+  if (!urlDatabase[userID]) {
+  urlDatabase[userID] = {};
+  urlDatabase[userID][shortURL] = longURL;
+  } else {
+  urlDatabase[userID][shortURL] = longURL;
+  }
+
   res.redirect(`/urls/${shortURL}`);
 });
 
@@ -125,9 +134,10 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:id", (req, res) => {
+
   res.render("urls_show", {
     shortURL: req.params.id,
-    longURL: urlDatabase[req.params.id],
+    longURL: urlDatabase[req.cookies.user_id][req.params.id],
     users : users,
     cookie: req.cookies.user_id
   });
@@ -135,7 +145,7 @@ app.get("/urls/:id", (req, res) => {
 
 app.get("/u/:shortURL", (req, res) => {
   shortURL = req.params.shortURL;
-  res.redirect(urlDatabase[shortURL]);
+  res.redirect(urlDatabase[req.cookies.user_id][shortURL]);
 });
 
 app.get("/urls.json", (req, res) => {
@@ -154,7 +164,7 @@ app.get("/login", (req, res) => {
 
 app.post("/urls/:id/update", (req,res) => {
   var newURL = req.body.update;
-  urlDatabase[req.params.id] = req.body.update;
+  urlDatabase[req.cookies.user_id][req.params.id] = req.body.update;
   res.redirect("/urls");
 });
 
@@ -162,7 +172,7 @@ app.post("/urls/:id/update", (req,res) => {
 
 app.post("/urls/:id/delete", (req, res) => {
   let id = req.body.delete;
-  delete urlDatabase[id];
+  delete urlDatabase[req.cookies.user_id][id];
   res.redirect("/urls");
 });
 

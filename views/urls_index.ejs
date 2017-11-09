@@ -1,11 +1,12 @@
 <% include partials/_header %>
 
 <div class="wrapper">
-  <h1>&nbsp&nbspTiny Urls</h1>
+  <h1>&nbsp&nbsp&nbspTiny Urls</h1>
   <br>
   <ul>
-    <% for (var key in urls) { %>
-    <li> <a href="/urls/<%= key %>"><%= urls[key] %> : <%= key %></a>
+
+    <% for (var key in urls[cookie]) { %>
+    <li> <a href="/urls/<%= key %>"><%= urls[cookie][key] %> : <%= key %></a>
       <form id="deleteURL" action="/urls/<%= key %>/delete" method="POST">
         <input type="hidden" name="delete" value="<%= key %>">
         <button>x</button>
