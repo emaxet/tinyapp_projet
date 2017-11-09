@@ -1,0 +1,16 @@
+<% include partials/_header %>
+
+  <div class="wrapper">
+    <h1>Login And Tinify Some URLS</h1>
+    <br>
+    <form action="/login" method="POST">
+      <input type="email" name="email" placeholder="ex. mail@example.com">
+      <input type="password" name="password" placeholder="password">
+      <button>Login</button>
+    </form>
+    <% if (error) { %>
+      <p class="errorMessage">Username or password incorrect. Make sure you correctly input your credentials</p>
+    <% } %>
+  </div>
+
+<% include partials/_footer %>

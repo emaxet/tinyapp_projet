@@ -6,7 +6,7 @@ body {
   background: linear-gradient(to right, skyblue, white);
 }
 
-div {
+.wrapper {
   text-align: center;
   margin-top: 15%;
 }
@@ -48,4 +48,8 @@ input {
 
 button {
   padding: 5px;
+}
+
+.errorMessage {
+  color: red;
 }

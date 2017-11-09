@@ -1,0 +1,18 @@
+<% include partials/_header %>
+
+  <div class="wrapper">
+    <h1>Join The TinyApp Army</h1>
+    <br>
+    <form action ="/register" method="POST">
+      <input type="email" name="email" placeholder="ex. mail@example.com">
+      <input type="password" name="password" placeholder="password">
+      <button>Register</button>
+    </form>
+    <% if (error) { %>
+      <p class="errorMessage">Please input both an email address and password</p>
+    <% } %>
+  </div>
+
+
+
+<% include partials/_footer %>

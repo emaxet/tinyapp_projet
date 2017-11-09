@@ -9,9 +9,19 @@
 </head>
 
 <body>
-<nav class="navbar navbar-light bg-faded">
-  <a class="navbar-brand" href="#">Tiny App</a>
-  <% if (username) { %>
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="/urls">
+        <img alt="Brand" src="...">
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!--
+  <a class="navbar-brand" href="/urls">Tiny App</a>
+  if (username) {
     <ul class="navbar-nav navbar-right">
       <li style="position: absolute; top: 13px; right: 120px; font-size: 20px">Hey There, <%= username %>!</li>
     </ul>
@@ -19,10 +29,12 @@
       <input style="margin-right: 10px" type="hidden" name="username" value="<%= username %>" placeholder="Username">
       <button>Logout</button>
     </form>
-  <% } else { %>
+   } else {
     <form class="form-inline my-2 my-lg-0" action="/login" method="POST">
       <input style="margin-right: 10px" type="text" name="username" placeholder="Username">
       <button>Login</button>
     </form>
-  <% } %>
+   }
 </nav>
+
+-->

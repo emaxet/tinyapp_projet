@@ -20,9 +20,26 @@ function generateRandomString() {
   return shortURL
 }
 
+// URL DALTA
+
 let urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
+};
+
+// USER DATA
+
+const users = {
+  "userRandomID": {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk"
+  }
 };
 
 // ROUTES
@@ -42,9 +59,40 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${shortURL}`);
 });
 
-app.post("/login", (req, res) => {
-  res.cookie("username", req.body.username);
+app.post("/register", (req, res) => {
+  let email    = req.body.email,
+      password = req.body.password,
+      userID   = generateRandomString();
+
+  users[userID] = {
+    'id'      : userID,
+    'email'   : email,
+    'password': password
+  }
+  if (email && password){
+  res.cookie("user_id", userID);
   res.redirect("/urls");
+  } else {
+    let error = true;
+    res.status(400);
+    res.render("register", { error: true, username: req.cookies.username });
+  }
+});
+
+app.post("/login", (req, res) => {
+
+  var email    = req.body.email,
+      password = req.body.password,
+      query_id = req.cookies.user_id;
+
+  for (var key  in users) {
+    if (users[key].email === email && users[key].password === password && key === query_id) {
+      res.redirect("/urls");
+    }
+  }
+    let error = true;
+    res.status(400);
+    res.render("login", { error: true, username: req.cookies.username });
 });
 
 // READ
@@ -75,6 +123,15 @@ app.get("/u/:shortURL", (req, res) => {
 
 app.get("/urls.json", (req, res) => {
   res.send(urlDatabase);
+});
+
+app.get("/register", (req, res) => {
+  res.render("register", { username: req.cookies.username, error: false });
+});
+
+app.get("/login", (req, res) => {
+  console.log(req.cookies);
+  res.render("login", {username: req.cookies.username, error: false});
 });
 
 // UPDATE
