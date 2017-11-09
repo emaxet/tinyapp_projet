@@ -193,7 +193,7 @@ app.get("/u/:shortURL", (req, res) => {
   if (urlDatabase[shortURL]) {
     res.redirect(urlDatabase[shortURL]);
   } else {
-  res.status(404).send("The requested URL was not found.");
+  res.status(404).send("Error 404: The requested URL was not found.");
   }
 });
 
@@ -217,7 +217,6 @@ app.get("/register", (req, res) => {
   } else {
     res.redirect("/urls");
   }
-
 });
 
 // READ LOGIN PAGE
@@ -227,7 +226,7 @@ app.get("/login", (req, res) => {
     users: users,
     error: false,
     cookie: req.session.user_id
-  }
+  };
   res.render("login", { passVars });
 });
 
