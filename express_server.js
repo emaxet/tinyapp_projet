@@ -75,24 +75,24 @@ app.post("/register", (req, res) => {
   } else {
     let error = true;
     res.status(400);
-    res.render("register", { error: true, username: req.cookies.username });
+    res.render("register", { error: true, users: users, cookie: req.cookies.user_id });
   }
 });
 
 app.post("/login", (req, res) => {
 
   var email    = req.body.email,
-      password = req.body.password,
-      query_id = req.cookies.user_id;
+      password = req.body.password;
 
-  for (var key  in users) {
-    if (users[key].email === email && users[key].password === password && key === query_id) {
+  for (var key in users) {
+    if (users[key].email === email && users[key].password === password) {
+      res.cookie("user_id", key);
       res.redirect("/urls");
     }
   }
     let error = true;
     res.status(400);
-    res.render("login", { error: true, username: req.cookies.username });
+    res.render("login", { error: true, users: users, cookie: req.cookies.user_id });
 });
 
 // READ
@@ -100,19 +100,21 @@ app.post("/login", (req, res) => {
 app.get("/urls", (req, res) => {
   res.render("urls_index", {
     urls: urlDatabase,
-    username: req.cookies.username
+    users: users,
+    cookie: req.cookies.user_id
   });
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new", { username: req.cookies.username });
+  res.render("urls_new", { users: users, cookie: req.cookies.user_id });
 });
 
 app.get("/urls/:id", (req, res) => {
   res.render("urls_show", {
     shortURL: req.params.id,
     longURL: urlDatabase[req.params.id],
-    username: req.cookies.username
+    users : users,
+    cookie: req.cookies.user_id
   });
 });
 
@@ -126,12 +128,11 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  res.render("register", { username: req.cookies.username, error: false });
+  res.render("register", { users: users, error: false, cookie: req.cookies.user_id });
 });
 
 app.get("/login", (req, res) => {
-  console.log(req.cookies);
-  res.render("login", {username: req.cookies.username, error: false});
+  res.render("login", { users: users, error: false, cookie: req.cookies.user_id });
 });
 
 // UPDATE
@@ -151,8 +152,7 @@ app.post("/urls/:id/delete", (req, res) => {
 });
 
 app.post("/logout", (req, res) => {
-  console.log(req.body.username);
-  res.clearCookie("username");
+  res.clearCookie("user_id");
   res.redirect("/urls");
 });
 

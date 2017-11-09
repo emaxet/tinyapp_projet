@@ -16,25 +16,19 @@
         <img alt="Brand" src="...">
       </a>
     </div>
+    <% if(!cookie) { %>
+      <ul class="nav navbar-nav">
+        <li class="nav-list"><a href="/login">Login</a></li>
+        <li class="nav-list"><a href="/register">Register</a></li>
+      </ul>
+    <% } else { %>
+      <ul class="navbar-nav navbar-right">
+        <li style="position: absolute; top: 13px; right: 100px; font-size: 20px"><%= users[cookie].email %></li>
+      </ul>
+      <form class="form-inline my-2 my-lg-0" action="/logout" method="POST">
+        <input style="margin-right: 10px" type="hidden">
+        <button>Logout</button>
+      </form>
+    <% } %>
   </div>
 </nav>
-
-<!--
-  <a class="navbar-brand" href="/urls">Tiny App</a>
-  if (username) {
-    <ul class="navbar-nav navbar-right">
-      <li style="position: absolute; top: 13px; right: 120px; font-size: 20px">Hey There, <%= username %>!</li>
-    </ul>
-    <form class="form-inline my-2 my-lg-0" action="/logout" method="POST">
-      <input style="margin-right: 10px" type="hidden" name="username" value="<%= username %>" placeholder="Username">
-      <button>Logout</button>
-    </form>
-   } else {
-    <form class="form-inline my-2 my-lg-0" action="/login" method="POST">
-      <input style="margin-right: 10px" type="text" name="username" placeholder="Username">
-      <button>Login</button>
-    </form>
-   }
-</nav>
-
--->
