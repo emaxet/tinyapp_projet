@@ -1,16 +1,19 @@
-const express      = require("express"),
-      app          = express(),
-      PORT         = process.env.PORT || 3000, // 8080 is default. Otherwise if a port is specified as an environmental variable, it's used.
-      bodyParser   = require("body-parser"),
-      ejs          = require("ejs"),
-      cookieParser = require('cookie-parser'),
-      path         = require('path'),
-      bcrypt       = require('bcrypt');
+const express       = require("express"),
+      app           = express(),
+      PORT          = process.env.PORT || 3000, // 8080 is default. Otherwise if a port is specified as an environmental variable, it's used.
+      bodyParser    = require("body-parser"),
+      ejs           = require("ejs"),
+      path          = require('path'),
+      bcrypt        = require('bcrypt'),
+      cookieSession = require('cookie-session');
 
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(cookieSession({
+  name: 'user_id',
+  keys: ['key1', 'key2'],
+}));
 
 function generateRandomString() {
   let shortURL = "";
@@ -50,7 +53,7 @@ app.post("/urls", (req, res) => {
 
   var longURL  = req.body.longURL,
       shortURL = generateRandomString(),
-      userID   = req.cookies.user_id;
+      userID   = req.session.user_id;
 
   shortenURL(userID, shortURL, longURL);
 
@@ -73,12 +76,12 @@ app.post("/register", (req, res) => {
     'shortURLs': []
   }
 
-  res.cookie("user_id", userID);
+  req.session.user_id = userID;
   res.redirect("/urls");
   } else {
     let error = true;
     res.status(400);
-    res.render("register", { error: true, users: users, cookie: req.cookies.user_id });
+    res.render("register", { error: true, users: users, cookie: req.session.user_id });
   }
 });
 
@@ -93,13 +96,13 @@ app.post("/login", (req, res) => {
 
   for (var key in users) {
     if (users[key].email === email && bcrypt.compareSync(password, users[key].password)) {
-      res.cookie("user_id", key);
+      req.session.user_id = key;
       res.redirect("/urls");
     }
   }
     let error = true;
     res.status(400);
-    res.render("login", { error: true, users: users, cookie: req.cookies.user_id });
+    res.render("login", { error: true, users: users, cookie: req.session.user_id });
 });
 
 // READ
@@ -110,7 +113,7 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", {
     urls: urlDatabase,
     users: users,
-    cookie: req.cookies.user_id,
+    cookie: req.session.user_id,
     error: false
   });
 });
@@ -118,10 +121,10 @@ app.get("/urls", (req, res) => {
 // READ NEW URL FORM
 
 app.get("/urls/new", (req, res) => {
-  if (req.cookies.user_id) {
-    res.render("urls_new", { users: users, cookie: req.cookies.user_id });
+  if (req.session.user_id) {
+    res.render("urls_new", { users: users, cookie: req.session.user_id });
   } else {
-    res.render("urls_index", { error: true, users: users, cookie: req.cookies.user_id, urls: urlDatabase });
+    res.render("urls_index", { error: true, users: users, cookie: req.session.user_id, urls: urlDatabase });
   }
 });
 
@@ -133,7 +136,7 @@ app.get("/urls/:id", (req, res) => {
     shortURL: req.params.id,
     longURL: urlDatabase[req.params.id],
     users : users,
-    cookie: req.cookies.user_id,
+    cookie: req.session.user_id,
     error: false
   });
 });
@@ -154,13 +157,13 @@ app.get("/urls.json", (req, res) => {
 // READ REGISTRATION PAGE
 
 app.get("/register", (req, res) => {
-  res.render("register", { users: users, error: false, cookie: req.cookies.user_id });
+  res.render("register", { users: users, error: false, cookie: req.session.user_id });
 });
 
 // READ LOGIN PAGE
 
 app.get("/login", (req, res) => {
-  res.render("login", { users: users, error: false, cookie: req.cookies.user_id });
+  res.render("login", { users: users, error: false, cookie: req.session.user_id });
 });
 
 // UPDATE
@@ -169,7 +172,7 @@ app.get("/login", (req, res) => {
 
 app.post("/urls/:id/update", (req,res) => {
   let shortURL = req.params.id,
-      userURLs = users[req.cookies.user_id]['shortURLs'],
+      userURLs = users[req.session.user_id]['shortURLs'],
       newURL   = req.body.update;
 
   userURLs.forEach((url) => {
@@ -182,7 +185,7 @@ app.post("/urls/:id/update", (req,res) => {
     shortURL: req.params.id,
     longURL: urlDatabase[shortURL],
     users : users,
-    cookie: req.cookies.user_id,
+    cookie: req.session.user_id,
     error: true
   });
 });
@@ -193,7 +196,7 @@ app.post("/urls/:id/update", (req,res) => {
 
 app.post("/urls/:id/delete", (req, res) => {
   let shortURL = req.body.delete,
-      userURLs = users[req.cookies.user_id]['shortURLs'];
+      userURLs = users[req.session.user_id]['shortURLs'];
 
   userURLs.forEach((url) => {
     if (url === shortURL) {
@@ -206,7 +209,7 @@ app.post("/urls/:id/delete", (req, res) => {
   res.render("urls_index", {
     urls: urlDatabase,
     users: users,
-    cookie: req.cookies.user_id,
+    cookie: req.session.user_id,
     error: false,
   });
 });
