@@ -1,8 +1,7 @@
 const express       = require("express"),
       app           = express(),
-      PORT          = process.env.PORT || 3000, // 8080 is default. Otherwise if a port is specified as an environmental variable, it's used.
+      PORT          = process.env.PORT || 3000,
       bodyParser    = require("body-parser"),
-      ejs           = require("ejs"),
       path          = require('path'),
       bcrypt        = require('bcrypt'),
       cookieSession = require('cookie-session');
@@ -24,7 +23,7 @@ function generateRandomString() {
     shortURL += possible[Math.floor(Math.random() * possible.length)];
   }
   return shortURL
-};
+}
 
 function shortenURL(userID, shortURL, longURL) {
   urlDatabase[shortURL] = longURL;
@@ -99,12 +98,9 @@ app.post("/register", (req, res) => {
     'shortURLs': []
   }
 
-  console.log(users);
-
   req.session.user_id = userID;
   res.redirect("/urls");
   } else {
-    let error = true;
     res.status(400);
     res.render("register", {
       error: true,
@@ -117,8 +113,6 @@ app.post("/register", (req, res) => {
 // LOG IN USER
 
 app.post("/login", (req, res) => {
-
-  console.log(users);
 
   const email    = req.body.email,
         password = req.body.password;
@@ -231,7 +225,7 @@ app.post("/urls/:id/update", (req,res) => {
 
   userURLs.forEach((url) => {
     if (url === shortURL) {
-      urlDatabase[shortURL] = req.body.update;
+      urlDatabase[shortURL] = newURL;
       res.redirect("/urls");
     }
   });
@@ -278,6 +272,6 @@ app.post("/logout", (req, res) => {
 // ----------------------------------- APP LISTENER
 
 app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
+  console.log(`TinyApp is listening on port ${PORT}!`);
 });
 
