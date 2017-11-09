@@ -4,17 +4,17 @@
   <h1>Your Tiny Urls</h1><br>
   <ul>
 
-    <% if(cookie) {
-      users[cookie]["shortURLs"].forEach((shortURL) => { %>
+    <% if(passVars.cookie) {
+      passVars.users[passVars.cookie]["shortURLs"].forEach((shortURL) => { %>
 
-    <li> <a href="/urls/<%= shortURL %>"><%= urls[shortURL] %> : <%= shortURL %></a>
+    <li> <a href="/urls/<%= shortURL %>"><%= passVars.urls[shortURL] %> : <%= shortURL %></a>
       <form id="deleteURL" action="/urls/<%= shortURL %>/delete" method="POST">
         <input type="hidden" name="delete" value="<%= shortURL %>">
         <button>x</button>
       </form>
     </li>
 
-    <% });
+      <% });
     } else { %>
 
     <br>
@@ -23,10 +23,10 @@
     <% } %>
 
     <br>
-    <a style="margin-right: 30px" class="badge badge-primary nav-button" href="/urls/new">Submit URL For Shortening</a>
+    <a id="submitURLIndex" class="badge badge-primary nav-button" href="/urls/new">Submit URL For Shortening</a>
   </ul>
 
-  <% if(loggedOut) { %>
+  <% if(passVars.loggedOut) { %>
 
     <br>
     <p class="errorMessage">Please <a href="/login">login</a> or <a href="/register">register</a> to tinify URLs</p>

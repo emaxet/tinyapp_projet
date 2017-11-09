@@ -9,12 +9,12 @@
       <button>Register</button>
     </form>
 
-    <% if (emptyInputs) { %>
+    <% if (passVars.emptyInputs) { %>
 
       <p class="errorMessage">Please input both an email address and password</p>
 
     <% }
-    if (emailExists) { %>
+    if (passVars.emailExists) { %>
 
       <p class="errorMessage">That email address has already been assigned to a user!</p>
 

@@ -17,7 +17,7 @@
           </a>
         </div>
 
-        <% if(!cookie) { %>
+        <% if(!passVars.cookie) { %>
 
           <ul class="nav navbar-nav navbar-right">
             <li class="nav-list"><a href="/login">Login</a></li>
@@ -27,7 +27,7 @@
         <% } else { %>
 
           <ul class="navbar-nav">
-            <li style="position: absolute; top: 13px; right: 120px; font-size: 20px"><%= users[cookie].email %></li>
+            <li style="position: absolute; top: 13px; right: 120px; font-size: 20px"><%= passVars.users[passVars.cookie].email %></li>
           </ul>
           <form class="form-inline my-2 my-lg-0" action="/logout" method="POST">
             <input style="margin-right: 10px" type="hidden">

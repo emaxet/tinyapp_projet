@@ -73,3 +73,7 @@ button {
   color: #007bff;
   font-size: 1.1em;
 }
+
+#submitURLIndex {
+  margin-right: 35px;
+}
