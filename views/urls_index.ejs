@@ -14,6 +14,10 @@
     <br>
     <a class="badge badge-primary nav-button" href="/urls/new">Submit URL For Shortening</a>
   </ul>
+  <% if(error) { %>
+  <br>
+  <p class="errorMessage">Please <a href="/login">login</a> or <a href="/register">register</a> to shorten URLs</p>
+  <% } %>
 </div>
 
 <% include partials/_footer %>

@@ -23,8 +23,12 @@ function generateRandomString() {
 // URL DALTA
 
 let urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "B2kR0s": {
+    "b2xVn2": "http://www.lighthouselabs.ca"
+  },
+  "Uj23lS": {
+    "9sm5xK": "http://www.google.com"
+  }
 };
 
 // USER DATA
@@ -52,12 +56,16 @@ app.get("/", (req, res) => {
 
 // CREATE
 
+// CREATE NEW SHORT URL
+
 app.post("/urls", (req, res) => {
   let longURL = req.body.longURL;
   let shortURL = generateRandomString();
   urlDatabase[shortURL] = longURL;
   res.redirect(`/urls/${shortURL}`);
 });
+
+// REGISTER NEW USER
 
 app.post("/register", (req, res) => {
   let email    = req.body.email,
@@ -78,6 +86,8 @@ app.post("/register", (req, res) => {
     res.render("register", { error: true, users: users, cookie: req.cookies.user_id });
   }
 });
+
+// LOG IN USER
 
 app.post("/login", (req, res) => {
 
@@ -101,12 +111,17 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", {
     urls: urlDatabase,
     users: users,
-    cookie: req.cookies.user_id
+    cookie: req.cookies.user_id,
+    error: false
   });
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new", { users: users, cookie: req.cookies.user_id });
+  if (req.cookies.user_id) {
+    res.render("urls_new", { users: users, cookie: req.cookies.user_id });
+  } else {
+    res.render("urls_index", { error: true, users: users, cookie: req.cookies.user_id, urls: urlDatabase });
+  }
 });
 
 app.get("/urls/:id", (req, res) => {
