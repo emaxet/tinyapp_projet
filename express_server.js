@@ -4,7 +4,8 @@ const express      = require("express"),
       bodyParser   = require("body-parser"),
       ejs          = require("ejs"),
       cookieParser = require('cookie-parser'),
-      path         = require('path');
+      path         = require('path'),
+      bcrypt       = require('bcrypt');
 
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
@@ -25,29 +26,13 @@ function shortenURL(userID, shortURL, longURL) {
   users[userID]["shortURLs"].push(shortURL);
 }
 
-// URL DALTA
+// URL DATA
 
-let urlDatabase = {
-    "b2xVn2": "http://www.lighthouselabs.ca",
-    "9sm5xK": "http://www.google.com"
-};
+let urlDatabase = {};
 
 // USER DATA
 
-const users = {
-  "userRandomID": {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur",
-    shortURLs: ["b2xVn2"]
-  },
- "user2RandomID": {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk",
-    shortURLs: ["9sm5xK"]
-  }
-};
+const users = {};
 
 // ROUTES
 
@@ -75,15 +60,16 @@ app.post("/urls", (req, res) => {
 // REGISTER NEW USER
 
 app.post("/register", (req, res) => {
-  let email    = req.body.email,
-      password = req.body.password,
-      userID   = generateRandomString();
+  let email          = req.body.email,
+      userID         = generateRandomString(),
+      password       = req.body.password,
+      hashedPassword = bcrypt.hashSync(password, 10);
 
   if (email && password){
    users[userID] = {
     'id'       : userID,
     'email'    : email,
-    'password' : password,
+    'password' : hashedPassword,
     'shortURLs': []
   }
 
@@ -100,11 +86,13 @@ app.post("/register", (req, res) => {
 
 app.post("/login", (req, res) => {
 
-  var email    = req.body.email,
-      password = req.body.password;
+  console.log(users);
+
+  const email    = req.body.email,
+        password = req.body.password;
 
   for (var key in users) {
-    if (users[key].email === email && users[key].password === password) {
+    if (users[key].email === email && bcrypt.compareSync(password, users[key].password)) {
       res.cookie("user_id", key);
       res.redirect("/urls");
     }
@@ -116,15 +104,18 @@ app.post("/login", (req, res) => {
 
 // READ
 
+// READ INDEX_URLS
+
 app.get("/urls", (req, res) => {
   res.render("urls_index", {
     urls: urlDatabase,
     users: users,
     cookie: req.cookies.user_id,
-    error: false,
-    deleteError: false
+    error: false
   });
 });
+
+// READ NEW URL FORM
 
 app.get("/urls/new", (req, res) => {
   if (req.cookies.user_id) {
@@ -133,6 +124,8 @@ app.get("/urls/new", (req, res) => {
     res.render("urls_index", { error: true, users: users, cookie: req.cookies.user_id, urls: urlDatabase });
   }
 });
+
+// READ URL BREAKDOWN (SHORT URL & LONG URL)
 
 app.get("/urls/:id", (req, res) => {
 
@@ -145,24 +138,34 @@ app.get("/urls/:id", (req, res) => {
   });
 });
 
+// REDIRECT USER TO SPECIFIED URL
+
 app.get("/u/:shortURL", (req, res) => {
   let shortURL = req.params.shortURL;
   res.redirect(urlDatabase[shortURL]);
 });
 
+// READ URL DATABASE
+
 app.get("/urls.json", (req, res) => {
   res.send(urlDatabase);
 });
 
+// READ REGISTRATION PAGE
+
 app.get("/register", (req, res) => {
   res.render("register", { users: users, error: false, cookie: req.cookies.user_id });
 });
+
+// READ LOGIN PAGE
 
 app.get("/login", (req, res) => {
   res.render("login", { users: users, error: false, cookie: req.cookies.user_id });
 });
 
 // UPDATE
+
+// UPDATE LONG URL
 
 app.post("/urls/:id/update", (req,res) => {
   let shortURL = req.params.id,
@@ -186,6 +189,8 @@ app.post("/urls/:id/update", (req,res) => {
 
 // DELETE
 
+// DELETE SPECIFIED URL
+
 app.post("/urls/:id/delete", (req, res) => {
   let shortURL = req.body.delete,
       userURLs = users[req.cookies.user_id]['shortURLs'];
@@ -206,11 +211,14 @@ app.post("/urls/:id/delete", (req, res) => {
   });
 });
 
+// USER LOGOUT (REMOVE USER_ID COOKIE)
+
 app.post("/logout", (req, res) => {
   res.clearCookie("user_id");
   res.redirect("/urls");
 });
 
+// APP LISTENER
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
