@@ -26,7 +26,7 @@
     <a style="margin-right: 30px" class="badge badge-primary nav-button" href="/urls/new">Submit URL For Shortening</a>
   </ul>
 
-  <% if(error) { %>
+  <% if(loggedOut) { %>
 
     <br>
     <p class="errorMessage">Please <a href="/login">login</a> or <a href="/register">register</a> to tinify URLs</p>

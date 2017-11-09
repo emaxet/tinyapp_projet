@@ -11,7 +11,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(cookieSession({
   name: 'user_id',
-  keys: ['key1', 'key2'],
+  keys: ['key1'],
 }));
 
 // ---------------------------------- HELPER FUNCTIONS
@@ -66,7 +66,7 @@ app.post("/urls", (req, res) => {
       urls: urlDatabase,
       users: users,
       cookie: req.session.user_id,
-      error: false
+      loggedOut: true
     });
   }
 });
@@ -83,7 +83,7 @@ app.post("/register", (req, res) => {
     if (users[key]['email'] === email) {
       res.render("register", {
         users: users,
-        error: false,
+        emptyInputs: false,
         cookie: req.session.user_id,
         emailExists: true
       });
@@ -91,21 +91,22 @@ app.post("/register", (req, res) => {
   }
 
   if (email && password){
-   users[userID] = {
-    'id'       : userID,
-    'email'    : email,
-    'password' : hashedPassword,
-    'shortURLs': []
-  }
-
-  req.session.user_id = userID;
-  res.redirect("/urls");
+    users[userID] = {
+     'id'       : userID,
+     'email'    : email,
+     'password' : hashedPassword,
+     'shortURLs': []
+    }
+    console.log(users);
+    req.session.user_id = userID;
+    res.redirect("/urls");
   } else {
     res.status(400);
     res.render("register", {
-      error: true,
+      emptyInputs: true,
       users: users,
-      cookie: req.session.user_id
+      cookie: req.session.user_id,
+      emailExists: false
     });
   }
 });
@@ -141,7 +142,7 @@ app.get("/urls", (req, res) => {
     urls: urlDatabase,
     users: users,
     cookie: req.session.user_id,
-    error: false
+    loggedOut: false
   });
 });
 
@@ -154,7 +155,7 @@ app.get("/urls/new", (req, res) => {
       cookie: req.session.user_id });
   } else {
     res.render("urls_index", {
-      error: true,
+      loggedOut: true,
       users: users,
       cookie: req.session.user_id,
       urls: urlDatabase
@@ -198,9 +199,9 @@ app.get("/urls.json", (req, res) => {
 app.get("/register", (req, res) => {
   res.render("register", {
     users: users,
-    error: false,
     cookie: req.session.user_id,
-    emailExists: false
+    emailExists: false,
+    emptyInputs: false
   });
 });
 
@@ -258,7 +259,7 @@ app.post("/urls/:id/delete", (req, res) => {
       urls: urlDatabase,
       users: users,
       cookie: req.session.user_id,
-      error: false
+      loggedOut: false
     });
 });
 
@@ -274,4 +275,5 @@ app.post("/logout", (req, res) => {
 app.listen(PORT, () => {
   console.log(`TinyApp is listening on port ${PORT}!`);
 });
+
 
