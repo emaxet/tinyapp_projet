@@ -11,6 +11,9 @@
     <% if (error) { %>
       <p class="errorMessage">Please input both an email address and password</p>
     <% } %>
+    <% if (emailExists) { %>
+      <p class="errorMessage">That email address has already been assigned to a user!</p>
+    <% } %>
   </div>
 
 

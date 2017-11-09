@@ -15,6 +15,8 @@ app.use(cookieSession({
   keys: ['key1', 'key2'],
 }));
 
+// ---------------------------------- HELPER FUNCTIONS
+
 function generateRandomString() {
   let shortURL = "";
   let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
@@ -29,6 +31,8 @@ function shortenURL(userID, shortURL, longURL) {
   users[userID]["shortURLs"].push(shortURL);
 }
 
+// ----------------------------------- DATABASE
+
 // URL DATA
 
 let urlDatabase = {};
@@ -37,15 +41,15 @@ let urlDatabase = {};
 
 const users = {};
 
-// ROUTES
+// ----------------------------------- ROUTES
 
 // INDEX
 
 app.get("/", (req, res) => {
-  res.send("<html><body><h1>Hi!</h1><p>Welcome to the page</p></body></html>");
+  (req.session.user_id) ? res.redirect("/urls") : res.redirect("/login");
 });
 
-// CREATE
+// --------------- CREATE
 
 // CREATE NEW SHORT URL
 
@@ -55,9 +59,17 @@ app.post("/urls", (req, res) => {
       shortURL = generateRandomString(),
       userID   = req.session.user_id;
 
-  shortenURL(userID, shortURL, longURL);
-
-  res.redirect(`/urls/${shortURL}`);
+  if (userID) {
+    shortenURL(userID, shortURL, longURL);
+    res.redirect(`/urls/${shortURL}`);
+  } else {
+    res.render("urls_index", {
+      urls: urlDatabase,
+      users: users,
+      cookie: req.session.user_id,
+      error: false
+    });
+  }
 });
 
 // REGISTER NEW USER
@@ -67,6 +79,17 @@ app.post("/register", (req, res) => {
       userID         = generateRandomString(),
       password       = req.body.password,
       hashedPassword = bcrypt.hashSync(password, 10);
+
+  for (var key in users) {
+    if (users[key]['email'] === email) {
+      res.render("register", {
+        users: users,
+        error: false,
+        cookie: req.session.user_id,
+        emailExists: true
+      });
+    }
+  }
 
   if (email && password){
    users[userID] = {
@@ -81,7 +104,11 @@ app.post("/register", (req, res) => {
   } else {
     let error = true;
     res.status(400);
-    res.render("register", { error: true, users: users, cookie: req.session.user_id });
+    res.render("register", {
+      error: true,
+      users: users,
+      cookie: req.session.user_id
+    });
   }
 });
 
@@ -102,10 +129,14 @@ app.post("/login", (req, res) => {
   }
     let error = true;
     res.status(400);
-    res.render("login", { error: true, users: users, cookie: req.session.user_id });
+    res.render("login", {
+      error: true,
+      users: users,
+      cookie: req.session.user_id
+    });
 });
 
-// READ
+// --------------- READ
 
 // READ INDEX_URLS
 
@@ -122,9 +153,16 @@ app.get("/urls", (req, res) => {
 
 app.get("/urls/new", (req, res) => {
   if (req.session.user_id) {
-    res.render("urls_new", { users: users, cookie: req.session.user_id });
+    res.render("urls_new", {
+      users: users,
+      cookie: req.session.user_id });
   } else {
-    res.render("urls_index", { error: true, users: users, cookie: req.session.user_id, urls: urlDatabase });
+    res.render("urls_index", {
+      error: true,
+      users: users,
+      cookie: req.session.user_id,
+      urls: urlDatabase
+    });
   }
 });
 
@@ -145,7 +183,12 @@ app.get("/urls/:id", (req, res) => {
 
 app.get("/u/:shortURL", (req, res) => {
   let shortURL = req.params.shortURL;
-  res.redirect(urlDatabase[shortURL]);
+
+  if (urlDatabase[shortURL]) {
+    res.redirect(urlDatabase[shortURL]);
+  } else {
+  res.status(404).send("The requested URL was not found.");
+  }
 });
 
 // READ URL DATABASE
@@ -157,16 +200,25 @@ app.get("/urls.json", (req, res) => {
 // READ REGISTRATION PAGE
 
 app.get("/register", (req, res) => {
-  res.render("register", { users: users, error: false, cookie: req.session.user_id });
+  res.render("register", {
+    users: users,
+    error: false,
+    cookie: req.session.user_id,
+    emailExists: false
+  });
 });
 
 // READ LOGIN PAGE
 
 app.get("/login", (req, res) => {
-  res.render("login", { users: users, error: false, cookie: req.session.user_id });
+  res.render("login", {
+    users: users,
+    error: false,
+    cookie: req.session.user_id
+  });
 });
 
-// UPDATE
+// --------------- UPDATE
 
 // UPDATE LONG URL
 
@@ -190,7 +242,7 @@ app.post("/urls/:id/update", (req,res) => {
   });
 });
 
-// DELETE
+// --------------- DELETE
 
 // DELETE SPECIFIED URL
 
@@ -206,12 +258,12 @@ app.post("/urls/:id/delete", (req, res) => {
       res.redirect("/urls");
     }
   });
-  res.render("urls_index", {
-    urls: urlDatabase,
-    users: users,
-    cookie: req.session.user_id,
-    error: false,
-  });
+    res.render("urls_index", {
+      urls: urlDatabase,
+      users: users,
+      cookie: req.session.user_id,
+      error: false
+    });
 });
 
 // USER LOGOUT (REMOVE USER_ID COOKIE)
@@ -221,7 +273,7 @@ app.post("/logout", (req, res) => {
   res.redirect("/urls");
 });
 
-// APP LISTENER
+// ----------------------------------- APP LISTENER
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
