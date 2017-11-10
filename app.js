@@ -6,6 +6,8 @@ const express       = require("express"),
       bcrypt        = require('bcrypt'),
       cookieSession = require('cookie-session');
 
+// ---------------------------------- MIDDLEWARE
+
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static(path.join(__dirname, 'public')));
@@ -13,6 +15,11 @@ app.use(cookieSession({
   name: 'user_id',
   keys: ['key1'],
 }));
+
+app.use((req, res, next) => {
+  res.locals.email = req.session.user_id ? users[req.session.user_id].email : null
+  next();
+});
 
 // ---------------------------------- HELPER FUNCTIONS
 
@@ -26,8 +33,15 @@ function generateRandomString() {
 }
 
 function logShortURL(userID, shortURL, longURL) {
-  urlDatabase[shortURL] = longURL;
+  urlDatabase[shortURL] = {
+    'longURL': longURL,
+    'viewCount': 0,
+  }
   users[userID]["shortURLs"].push(shortURL);
+}
+
+function urlViewCount(shortURL, viewCount) {
+  urlDatabase[shortURL][viewCount] += 1;
 }
 
 // ----------------------------------- DATABASE
@@ -60,7 +74,7 @@ app.post("/urls", (req, res) => {
       passVars = {
         urls: urlDatabase,
         users: users,
-        cookie: req.session.user_id,
+        userID: req.session.user_id,
         loggedOut: true
       };
 
@@ -68,7 +82,7 @@ app.post("/urls", (req, res) => {
     logShortURL(userID, shortURL, longURL);
     res.redirect(`/urls/${shortURL}`);
   } else {
-    res.render("urls_index", { passVars });
+    res.render("urls_index", passVars);
   }
 });
 
@@ -82,14 +96,14 @@ app.post("/register", (req, res) => {
       passVars       = {
         users: users,
         emptyInputs: false,
-        cookie: req.session.user_id,
+        userID: req.session.user_id,
         emailExists: false
       }
 
   for (var key in users) {
     if (users[key]['email'] === email) {
       passVars['emailExists'] = true;
-      res.render("register", { passVars });
+      return res.render("register", passVars);
     }
   }
 
@@ -106,7 +120,7 @@ app.post("/register", (req, res) => {
   } else {
     passVars['emptyInputs'] = true;
     res.status(400);
-    res.render("register", { passVars });
+    res.render("register", passVars);
   }
 });
 
@@ -117,20 +131,20 @@ app.post("/login", (req, res) => {
   const email    = req.body.email,
         password = req.body.password;
         passVars = {
-          error: true,
-          users: users,
-          cookie: req.session.user_id
+          error : true,
+          users : users,
+          userID: req.session.user_id
         }
 
   for (var key in users) {
     if (users[key].email === email && bcrypt.compareSync(password, users[key].password)) {
       req.session.user_id = key;
-      res.redirect("/urls");
+      return res.redirect("/urls");
     }
   }
     let error = true;
     res.status(400);
-    res.render("login", { passVars });
+    res.render("login", passVars);
 });
 
 // --------------- READ
@@ -141,10 +155,10 @@ app.get("/urls", (req, res) => {
   let passVars = {
     urls: urlDatabase,
     users: users,
-    cookie: req.session.user_id,
+    userID: req.session.user_id,
     loggedOut: false
   }
-  res.render("urls_index", { passVars });
+  res.render("urls_index", passVars);
 });
 
 // READ NEW URL FORM
@@ -152,7 +166,7 @@ app.get("/urls", (req, res) => {
 app.get("/urls/new", (req, res) => {
   let passVars = {
     users: users,
-    cookie: req.session.user_id,
+    userID: req.session.user_id,
   }
 
   if (req.session.user_id) {
@@ -160,28 +174,34 @@ app.get("/urls/new", (req, res) => {
   } else {
     passVars["loggedOut"] = true;
     passVars["urls"] = urlDatabase;
-    res.render("urls_index", { passVars });
+    res.render("urls_index", passVars);
   }
 });
 
-// READ URL BREAKDOWN (SHORT URL & LONG URL)
+// READ SHORT URL
 
 app.get("/urls/:id", (req, res) => {
   let shortURL = req.params.id,
       passVars = {
-        shortURL: req.params.id,
-        longURL : urlDatabase[req.params.id],
-        users   : users,
-        cookie  : req.session.user_id,
-        error   : false,
+        shortURL : shortURL,
+        longURL  : urlDatabase[shortURL].longURL,
+        users    : users,
+        userID   : req.session.user_id,
+        error    : false,
       };
 
+  console.log(urlDatabase);
+  console.log
+
   if (urlDatabase[shortURL]) {
+    urlViewCount(shortURL, "viewCount");
     passVars['urlNotFound'] = false;
-    res.render("urls_show", { passVars });
+    passVars['viewCount'] = urlDatabase[shortURL]["viewCount"];
+
+    res.render("urls_show", passVars);
   } else {
     passVars['urlNotFound'] = true;
-    res.render("urls_show", { passVars });
+    res.render("urls_show", passVars);
   }
 });
 
@@ -208,15 +228,12 @@ app.get("/urls.json", (req, res) => {
 app.get("/register", (req, res) => {
   let passVars = {
     users: users,
-    cookie: req.session.user_id,
+    userID: req.session.user_id,
     emailExists: false,
     emptyInputs: false
   };
-  if (req.session.user_id) {
-    res.render("register", { passVars });
-  } else {
-    res.redirect("/urls");
-  }
+
+    res.render("register", passVars);
 });
 
 // READ LOGIN PAGE
@@ -225,9 +242,9 @@ app.get("/login", (req, res) => {
   let passVars = {
     users: users,
     error: false,
-    cookie: req.session.user_id
+    userID: req.session.user_id
   };
-  res.render("login", { passVars });
+  res.render("login", passVars);
 });
 
 // --------------- UPDATE
@@ -241,8 +258,9 @@ app.post("/urls/:id/update", (req,res) => {
       passVars = {
         shortURL: req.params.id,
         longURL: urlDatabase[shortURL],
+        viewCount: urlDatabase[shortURL].viewCount,
         users : users,
-        cookie: req.session.user_id,
+        userID: req.session.user_id,
         error: true
       };
 
@@ -252,7 +270,7 @@ app.post("/urls/:id/update", (req,res) => {
       res.redirect("/urls");
     }
   });
-  res.render("urls_show", { passVars });
+  res.render("urls_show", passVars);
 });
 
 // --------------- DELETE
@@ -265,7 +283,7 @@ app.post("/urls/:id/delete", (req, res) => {
       passVars = {
         urls: urlDatabase,
         users: users,
-        cookie: req.session.user_id,
+        userID: req.session.user_id,
         loggedOut: false
       };
 
@@ -277,7 +295,7 @@ app.post("/urls/:id/delete", (req, res) => {
       res.redirect("/urls");
     }
   });
-    res.render("urls_index", { passVars });
+    res.render("urls_index", passVars);
 });
 
 // USER LOGOUT (REMOVE USER_ID COOKIE)

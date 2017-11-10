@@ -1,49 +1,49 @@
 <% include partials/_header.ejs%>
 
-<div class="wrapper">
+<div class="container" id="showContainer">
+  <div class="wrapper">
 
-  <% if (!passVars.urlNotFound) { %>
+    <% if (!urlNotFound) { %>
 
-    <h2>Original URL:  <span><%= passVars.longURL %></span></h2>
-    <h2>Shortened URL:  <span><%= passVars.shortURL %></span></h2>
-    <br>
-    <a class="badge badge-primary nav-button" href=<%= passVars.longURL %>>Follow This URL</a>
-    <a class="badge badge-primary nav-button" href="/urls">See Your Shortened URLs</a>
+      <div id="urlViewCount">
+        <p><%= viewCount %></p>
+      </div>
 
-    <% if(passVars.cookie) {
-      passVars.users[passVars.cookie]["shortURLs"].forEach((url) => {
-        if (url === passVars.shortURL) {%>
+      <h3><%= longURL %> is now <span id="shortURL"><a href="<%= longURL %>"><%= shortURL %></span></a> !</h3>
 
-        <form id="deleteButton" action="/urls/<%= passVars.shortURL %>/delete" method="POST">
-          <input type="hidden" name="delete" value="<%= passVars.shortURL %>">
-          <button id="showPageDelete" class="badge badge-primary nav-button">Get Rid Of This URL</button>
-        </form>
-        <br><br><br>
-        <h2>Change <span id="changeURL"><%= passVars.longURL %></span> to...</h2>
-        <br>
+      <% if(userID) {
+        users[userID]["shortURLs"].forEach((url) => {
+          if (url === shortURL) { %>
 
-        <% if (!passVars.error) {%>
+          <% if (!error) { %>
 
-          <form id="updateURL" action="/urls/<%=passVars.shortURL%>/update" method="POST">
-            <input type="text" name="update" placeholder="Input edited URL here">
-            <button>Update URL</button>
+            <form action="/urls/<%= shortURL %>/update" method="POST">
+              <input type="text" name="update" placeholder="Want to edit this URL?">
+              <button class="btn btn-primary">Do it</button>
+            </form
+
+          <% } else { %>
+
+            <p class="errorMessage">Unfortunately, you cannot edit another user's URL. Sorry!</p>
+
+          <% } %>
+
+          <form action="/urls/<%= shortURL %>/delete" method="POST">
+            <input type="hidden" name="delete" value="<%= shortURL %>">
+            <button class="btn btn-danger">Get Rid Of This URL</button>
           </form>
 
-        <% } else { %>
+          <% }
+        });
+      }
+    } else { %>
 
-          <p class="errorMessage">Unfortunately, you cannot edit another user's URL. Sorry!</p>
+      <p class ="errorMessage">That URL was not found in our database, try another one!</p>
+      <a class="badge badge-primary nav-button" href="/urls">See Your Shortened URLs</a>
 
-        <% }
-        }
-      });
-    }
-  } else { %>
+    <% } %>
 
-    <p class ="errorMessage">That URL was not found in our database, try another one!</p>
-    <a class="badge badge-primary nav-button" href="/urls">See Your Shortened URLs</a>
-
-  <% } %>
-
+  </div>
 </div>
 
 <% include partials/_footer %>

@@ -1,38 +1,41 @@
 <% include partials/_header %>
 
-<div class="wrapper">
-  <h1>Your Tiny Urls</h1><br>
-  <ul>
+<div class="container">
+  <div class="wrapper">
+    <div class="wrapper-content">
+      <h1>Your Tiny Urls</h1><br>
+      <ul>
 
-    <% if(passVars.cookie) {
-      passVars.users[passVars.cookie]["shortURLs"].forEach((shortURL) => { %>
+        <% if(userID) {
+          users[userID]["shortURLs"].forEach((shortURL) => { %>
 
-    <li> <a href="/urls/<%= shortURL %>"><%= passVars.urls[shortURL] %> : <%= shortURL %></a>
-      <form id="deleteURL" action="/urls/<%= shortURL %>/delete" method="POST">
-        <input type="hidden" name="delete" value="<%= shortURL %>">
-        <button>x</button>
-      </form>
-    </li>
+        <li> <a href="/urls/<%= shortURL %>"><%= shortURL %> : <%= urls[shortURL].longURL %></a>
+          <form id="deleteURL" action="/urls/<%= shortURL %>/delete" method="POST">
+            <input type="hidden" name="delete" value="<%= shortURL %>">
+            <button>x</button>
+          </form>
+        </li>
 
-      <% });
-    } else { %>
+          <% });
+        } else { %>
 
-    <br>
-    <p>Welcome to TinyApp! Please <a href="/login">login</a> or <a href="/register">register</a> to start tinifying URLs!</p>
+        <br>
+        <p>Welcome to TinyApp! Please <a href="/login">login</a> or <a href="/register">register</a> to start tinifying URLs!</p>
 
-    <% } %>
+        <% } %>
 
-    <br>
-    <a id="submitURLIndex" class="badge badge-primary nav-button" href="/urls/new">Submit URL For Shortening</a>
-  </ul>
+        <br>
+        <a id="submitURLIndex" class="badge badge-primary nav-button" href="/urls/new">Submit URL For Shortening</a>
+      </ul>
 
-  <% if(passVars.loggedOut) { %>
+      <% if(loggedOut) { %>
 
-    <br>
-    <p class="errorMessage">Please <a href="/login">login</a> or <a href="/register">register</a> to tinify URLs</p>
+        <br>
+        <p class="errorMessage">Please <a href="/login">login</a> or <a href="/register">register</a> to tinify URLs</p>
 
-  <% } %>
-
+      <% } %>
+    </div>
+  </div>
 </div>
 
 <% include partials/_footer %>

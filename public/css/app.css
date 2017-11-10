@@ -1,4 +1,8 @@
+/* Organize When You Get A Chance */
+
 body {
+  font-family: 'Raleway', sans-serif;
+  color: rgb(150, 150, 150);
   background: skyblue;
   background: -webkit-linear-gradient(left, skyblue, white);
   background: -o-linear-gradient(left, skyblue, white );
@@ -6,20 +10,43 @@ body {
   background: linear-gradient(to right, skyblue, white);
 }
 
-.wrapper {
+p {
+  font-size: 25px;
+}
+
+.container {
   text-align: center;
-  margin-top: 13%;
+  margin-top: 10%;
+}
+
+.wrapper {
+  position: relative;
+  margin: 0 auto;
+  padding: 75px 100px;
+  width: 85%;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 50px;
+}
+
+#showContainer {
+  margin-top: 10%;
 }
 
 li {
   list-style-type: none;
   text-align: center;
   line-height: 30px;
-  font-size: 20px;
+  font-size: 19px;
+  margin-right: 10px;
 }
 
-#longURL {
-  padding: 5px;
+#shortURL {
+  color: #007bff;
+}
+
+#shortURL a:hover {
+  text-decoration: none;
+  color: rgb(251, 176, 59);
 }
 
 #showPageDelete {
@@ -57,7 +84,7 @@ h2 span {
 }
 
 input {
-  padding: 5px;
+  padding: 10px;
 }
 
 button {
@@ -69,11 +96,99 @@ button {
   color: red;
 }
 
-#changeURL {
-  color: #007bff;
-  font-size: 1.1em;
+#submitURLIndex {
+  margin-right: 35px;
+}
+
+body > nav {
+  font-weight: 500;
+}
+
+.btn-primary {
+  padding: 12px;
 }
 
 #submitURLIndex {
-  margin-right: 35px;
+  font-size: 15px;
+}
+
+#submitURLIndex.badge.badge-primary.nav-button {
+  padding: 15px;
+}
+
+#tinifyURLIndex.badge.badge-primary.nav-button {
+  padding: 15px;
+}
+
+h1 {
+  font-weight: 700px;
+}
+
+#navBrand > a > img {
+  color: rgb(251, 176, 59);
+  margin-right: 15px;
+  font-weight: 700;
+}
+
+#logoutButton {
+  background: rgb(251, 176, 59);
+  padding: 8px;
+  border: none;
+}
+
+input:focus {
+  border: none;
+}
+
+input {
+  padding: 25px;
+  height: 50px;
+  width: 300px;
+  border-radius: 10px;
+}
+
+#tinifyForm > button {
+  display: block;
+  margin: 20px auto 0 auto;
+  width: 200px;
+}
+
+#tinifyForm > input {
+  margin-top: 10px;
+  padding: 25px;
+  height: 50px;
+  width: 500px;
+  border-radius: 10px;
+}
+
+#loginButton {
+  display: block;
+  width: 200px;
+  margin: 20px auto 0 auto;
+}
+
+#registerButton {
+  display: block;
+  width: 200px;
+  margin: 20px auto 0 auto;
+}
+
+#updateURL {
+  margin-top: 60px;
+  margin-bottom: 40px;
+}
+
+#urlViewCount {
+  position: absolute;
+  bottom: 40px;
+  right: 40px;
+  width: 50px;
+  height: 50px;
+  font-size: 20px;
+  border: solid 2px #007bff;
+  border-radius: 50%;
+}
+
+#urlViewCount p {
+  margin-top: 1.5px;
 }
