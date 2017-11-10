@@ -180,17 +180,33 @@ input {
 
 #urlViewCount {
   position: absolute;
-  bottom: 40px;
-  right: 40px;
+  bottom: 20px;
+  left: 20px;
   width: 50px;
   height: 50px;
   font-size: 20px;
-  border: solid 2px #007bff;
+  border: solid 1px #007bff;
   border-radius: 50%;
 }
 
 #urlViewCount p {
-  margin-top: 1.4px;
+  margin-top: 2.5px;
+}
+
+#uniqueViews {
+  position: absolute;
+  bottom: 20px;
+  left: 80px;
+  width: 50px;
+  height: 50px;
+  font-size: 20px;
+  border: solid 1px rgb(251, 176, 59);
+  border-radius: 50%;
+}
+
+#uniqueViews p {
+  margin-top: 2.5px;
+
 }
 
 #urlNotFoundButton {

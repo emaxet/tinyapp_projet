@@ -45,7 +45,8 @@ function generateRandomString() {
 function logShortURL(userID, shortURL, longURL) {
   urlDatabase[shortURL] = {
     'longURL': longURL,
-    'viewCount': 0
+    'viewCount': 0,
+    'viewerIDs': []
   };
   users[userID]["shortURLs"].push(shortURL);
 }
@@ -55,7 +56,11 @@ function urlViewCount(shortURL, viewCount) {
 }
 
 function urlUniqueViews (userID, shortURL) {
-
+  let viewerArray = urlDatabase[shortURL]['viewerIDs'];
+  if (viewerArray.indexOf(userID) === -1) {
+    viewerArray.push(userID);
+  }
+  return viewerArray.length;
 }
 
 
@@ -73,21 +78,17 @@ app.get("/", (req, res) => {
 
 app.post("/urls", (req, res) => {
 
+  console.log(req);
+
   let longURL  = req.body.longURL;
   let shortURL = generateRandomString();
   let userID   = req.session.user_id;
-  let passVars = {
-    urls: urlDatabase,
-    users: users,
-    userID: req.session.user_id,
-    loggedOut: true
-  };
 
   if (userID) {
     logShortURL(userID, shortURL, longURL);
     res.redirect(`/urls/${shortURL}`);
   } else {
-    res.render("urls_index", passVars);
+    res.render("urls_index");
   }
 });
 
@@ -99,9 +100,7 @@ app.post("/register", (req, res) => {
   let password       = req.body.password;
   let hashedPassword = bcrypt.hashSync(password, 10);
   let passVars       = {
-    users: users,
     emptyInputs: false,
-    userID: req.session.user_id,
     emailExists: false
   };
 
@@ -111,7 +110,6 @@ app.post("/register", (req, res) => {
       return res.render("register", passVars);
     }
   }
-
   if (email && password){
     users[userID] = {
       'id': userID,
@@ -119,7 +117,6 @@ app.post("/register", (req, res) => {
       'password': hashedPassword,
       'shortURLs': []
     };
-
     req.session.user_id = userID;
     res.redirect("/urls");
   } else {
@@ -136,9 +133,7 @@ app.post("/login", (req, res) => {
   let email    = req.body.email;
   let password = req.body.password;
   let passVars = {
-    error: true,
-    users: users,
-    userID: req.session.user_id
+    noMatch: false,
   };
 
   for (var key in users) {
@@ -147,7 +142,7 @@ app.post("/login", (req, res) => {
       return res.redirect("/urls");
     }
   }
-  let error = true;
+  passVars['noMatch'] = true;
   res.status(400);
   res.render("login", passVars);
 });
@@ -187,19 +182,20 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls/:id", (req, res) => {
   let shortURL = req.params.id;
+  let userID = req.session.user_id;
   let passVars = {
     shortURL: shortURL,
     users: users,
-    userID: req.session.user_id,
-    error: false
+    userID: userID
   };
 
   if (urlDatabase[shortURL]) {
+
     urlViewCount(shortURL, "viewCount");
     passVars['urlNotFound'] = false;
     passVars['viewCount'] = urlDatabase[shortURL]["viewCount"];
+    passVars['uniqueViews'] = urlUniqueViews(userID, shortURL);
     passVars['longURL'] = urlDatabase[shortURL].longURL;
-
     res.render("urls_show", passVars);
   } else {
     passVars['urlNotFound'] = true;
@@ -230,25 +226,13 @@ app.get("/urls.json", (req, res) => {
 // READ REGISTRATION PAGE
 
 app.get("/register", (req, res) => {
-  let passVars = {
-    users: users,
-    userID: req.session.user_id,
-    emailExists: false,
-    emptyInputs: false
-  };
-
-  res.render("register", passVars);
+  res.render("register", { emailExists: false, emptyInputs: false });
 });
 
 // READ LOGIN PAGE
 
 app.get("/login", (req, res) => {
-  let passVars = {
-    users: users,
-    error: false,
-    userID: req.session.user_id
-  };
-  res.render("login", passVars);
+  res.render("login", { noMatch: false } );
 });
 
 // --------------- UPDATE
@@ -256,25 +240,22 @@ app.get("/login", (req, res) => {
 // UPDATE LONG URL
 
 app.post("/urls/:id/update", (req, res) => {
+
+  if (!req.session.user_id) {
+    res.status(401).send("401 Error: You aren't authorized to perform this action");
+  }
+
   let shortURL = req.params.id;
   let userURLs = users[req.session.user_id]['shortURLs'];
   let newURL   = req.body.update;
-  let passVars = {
-    shortURL: req.params.id,
-    longURL: urlDatabase[shortURL],
-    viewCount: urlDatabase[shortURL].viewCount,
-    users: users,
-    userID: req.session.user_id,
-    error: true
-  };
 
   userURLs.forEach((url) => {
     if (url === shortURL) {
-      urlDatabase[shortURL] = newURL;
-      res.redirect("/urls");
+      urlDatabase[shortURL]['longURL'] = newURL;
+      return res.redirect("/urls");
     }
   });
-  res.render("urls_show", passVars);
+  res.redirect("urls_show");
 });
 
 // --------------- DELETE

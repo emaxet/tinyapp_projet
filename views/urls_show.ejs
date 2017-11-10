@@ -5,10 +5,6 @@
 
     <% if (!urlNotFound) { %>
 
-      <div id="urlViewCount">
-        <p><%= viewCount %></p>
-      </div>
-
       <h3><%= longURL %> is now <span id="shortURL"><a href="<%= longURL %>"><%= shortURL %></span></a> !</h3>
 
       <% if(userID) {
@@ -35,6 +31,12 @@
 
     <% } %>
 
+    <div id="urlViewCount">
+      <p><%= viewCount %></p>
+    </div>
+    <div id="uniqueViews">
+      <p><%= uniqueViews %></p>
+    </div>
   </div>
 </div>
 
