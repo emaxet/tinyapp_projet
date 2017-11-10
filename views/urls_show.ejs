@@ -1,4 +1,4 @@
-<% include partials/_header.ejs%>
+<% include partials/_header.ejs %>
 
 <div class="container" id="showContainer">
   <div class="wrapper">
@@ -15,20 +15,12 @@
         users[userID]["shortURLs"].forEach((url) => {
           if (url === shortURL) { %>
 
-          <% if (!error) { %>
-
-            <form action="/urls/<%= shortURL %>/update" method="POST">
+            <form id="updateURL" action="/urls/<%= shortURL %>/update" method="POST">
               <input type="text" name="update" placeholder="Want to edit this URL?">
               <button class="btn btn-primary">Do it</button>
-            </form
+            </form>
 
-          <% } else { %>
-
-            <p class="errorMessage">Unfortunately, you cannot edit another user's URL. Sorry!</p>
-
-          <% } %>
-
-          <form action="/urls/<%= shortURL %>/delete" method="POST">
+          <form id="deleteURL" action="/urls/<%= shortURL %>/delete" method="POST">
             <input type="hidden" name="delete" value="<%= shortURL %>">
             <button class="btn btn-danger">Get Rid Of This URL</button>
           </form>
@@ -39,7 +31,7 @@
     } else { %>
 
       <p class ="errorMessage">That URL was not found in our database, try another one!</p>
-      <a class="badge badge-primary nav-button" href="/urls">See Your Shortened URLs</a>
+      <a id="urlNotFoundButton" class="badge badge-primary nav-button" href="/urls">See Your Shortened URLs</a>
 
     <% } %>
 

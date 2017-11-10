@@ -190,5 +190,10 @@ input {
 }
 
 #urlViewCount p {
-  margin-top: 1.5px;
+  margin-top: 1.4px;
+}
+
+#urlNotFoundButton {
+  font-size: 15px;
+  margin-top: 15px;
 }
