@@ -42,11 +42,26 @@ function generateRandomString() {
   return shortURL;
 }
 
-function logShortURL(userID, shortURL, longURL) {
+function urlTimeStamp (shortURL) {
+  let monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  let date = new Date();
+  let year = date.getFullYear();
+  let month = date.getMonth();
+  let day = date.getDate();
+  let hours = date.getHours();
+  let mins = date.getMinutes();
+
+  console.log("hours", date.getHours());
+
+  return `${monthNames[month]} ${day}, ${year} at ${hours}:${mins}`;
+}
+
+function logShortURL(userID, shortURL, longURL, timeStamp) {
   urlDatabase[shortURL] = {
     'longURL': longURL,
     'viewCount': 0,
-    'viewerIDs': []
+    'viewerIDs': [],
+    'timeStamp': urlTimeStamp()
   };
   users[userID]["shortURLs"].push(shortURL);
 }
@@ -78,7 +93,7 @@ app.get("/", (req, res) => {
 
 app.post("/urls", (req, res) => {
 
-  console.log(req);
+  console.log(req._timer);
 
   let longURL  = req.body.longURL;
   let shortURL = generateRandomString();
@@ -88,7 +103,7 @@ app.post("/urls", (req, res) => {
     logShortURL(userID, shortURL, longURL);
     res.redirect(`/urls/${shortURL}`);
   } else {
-    res.render("urls_index");
+    res.redirect("urls_index");
   }
 });
 
@@ -184,6 +199,7 @@ app.get("/urls/:id", (req, res) => {
   let shortURL = req.params.id;
   let userID = req.session.user_id;
   let passVars = {
+    timeStamp: urlDatabase[shortURL]["timeStamp"],
     shortURL: shortURL,
     users: users,
     userID: userID
