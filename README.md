@@ -4,9 +4,9 @@ TinyApp is a full stack web application built atop Node and Express. It allows y
 
 ## Final Product
 
-![Login Page](/public/tiny_app_login.png)
-![URLs Index Page](/public/tiny_app_urls_index.png)
-![Tinified URL Page](/public/tinified_url.png)
+![Login Page](https://github.com/emaxet/tinyapp_projet/blob/master/public/css/tiny_app_login.png?raw=true)
+![URLs Index Page](https://github.com/emaxet/tinyapp_projet/blob/master/public/css/tiny_app_urls_index.png?raw=true)
+![Tinified URL Page](https://github.com/emaxet/tinyapp_projet/blob/master/public/css/tinified_url.png?raw=true)
 
 ## Dependencies
 
