@@ -27,7 +27,10 @@ app.use(cookieSession({
   keys: ['key1']
 }));
 app.use((req, res, next) => {
-  res.locals.email = req.session.user_id ? users[req.session.user_id].email : null;
+  app.locals.email = req.session.user_id ? users[req.session.user_id].email : null;
+  app.locals.viewCount = null;
+  app.locals.uniqueViews = null;
+  app.locals.timeStamp = null;
   next();
 });
 
@@ -50,8 +53,6 @@ function urlTimeStamp (shortURL) {
   let day = date.getDate();
   let hours = date.getHours();
   let mins = date.getMinutes();
-
-  console.log("hours", date.getHours());
 
   return `${monthNames[month]} ${day}, ${year} at ${hours}:${mins}`;
 }
@@ -93,17 +94,15 @@ app.get("/", (req, res) => {
 
 app.post("/urls", (req, res) => {
 
-  console.log(req._timer);
-
   let longURL  = req.body.longURL;
   let shortURL = generateRandomString();
   let userID   = req.session.user_id;
 
-  if (userID) {
+  if (app.locals.email) {
     logShortURL(userID, shortURL, longURL);
     res.redirect(`/urls/${shortURL}`);
   } else {
-    res.redirect("urls_index");
+    res.redirect("/urls");
   }
 });
 
@@ -147,9 +146,6 @@ app.post("/login", (req, res) => {
 
   let email    = req.body.email;
   let password = req.body.password;
-  let passVars = {
-    noMatch: false,
-  };
 
   for (var key in users) {
     if (users[key].email === email && bcrypt.compareSync(password, users[key].password)) {
@@ -159,7 +155,7 @@ app.post("/login", (req, res) => {
   }
   passVars['noMatch'] = true;
   res.status(400);
-  res.render("login", passVars);
+  res.render("login", { noMatch: false } );
 });
 
 // --------------- READ
@@ -181,14 +177,14 @@ app.get("/urls", (req, res) => {
 app.get("/urls/new", (req, res) => {
   let passVars = {
     users: users,
+    urls: urlDatabase,
     userID: req.session.user_id
   };
 
-  if (req.session.user_id) {
-    res.render("urls_new", { passVars });
+  if (app.locals.email) {
+    res.render("urls_new");
   } else {
     passVars["loggedOut"] = true;
-    passVars["urls"] = urlDatabase;
     res.render("urls_index", passVars);
   }
 });
@@ -199,7 +195,6 @@ app.get("/urls/:id", (req, res) => {
   let shortURL = req.params.id;
   let userID = req.session.user_id;
   let passVars = {
-    timeStamp: urlDatabase[shortURL]["timeStamp"],
     shortURL: shortURL,
     users: users,
     userID: userID
@@ -209,9 +204,11 @@ app.get("/urls/:id", (req, res) => {
 
     urlViewCount(shortURL, "viewCount");
     passVars['urlNotFound'] = false;
-    passVars['viewCount'] = urlDatabase[shortURL]["viewCount"];
+    passVars['viewCount']   = urlDatabase[shortURL]["viewCount"];
     passVars['uniqueViews'] = urlUniqueViews(userID, shortURL);
-    passVars['longURL'] = urlDatabase[shortURL].longURL;
+    passVars['longURL']     = urlDatabase[shortURL].longURL;
+    passVars['timeStamp']   = urlDatabase[shortURL]["timeStamp"];
+
     res.render("urls_show", passVars);
   } else {
     passVars['urlNotFound'] = true;
@@ -251,14 +248,21 @@ app.get("/login", (req, res) => {
   res.render("login", { noMatch: false } );
 });
 
+// READ MOST POPULAR (UNIQUE VIEWS) URLS
+
+app.get("/urls/popular", (req, res) => {
+
+  res.render("popular", )
+});
+
 // --------------- UPDATE
 
 // UPDATE LONG URL
 
 app.post("/urls/:id/update", (req, res) => {
 
-  if (!req.session.user_id) {
-    res.status(401).send("401 Error: You aren't authorized to perform this action");
+  if (!app.locals.email) {
+    return res.status(401).send("401 Error: You aren't authorized to perform this action");
   }
 
   let shortURL = req.params.id;
@@ -268,10 +272,9 @@ app.post("/urls/:id/update", (req, res) => {
   userURLs.forEach((url) => {
     if (url === shortURL) {
       urlDatabase[shortURL]['longURL'] = newURL;
-      return res.redirect("/urls");
     }
   });
-  res.redirect("urls_show");
+  return res.redirect("/urls");
 });
 
 // --------------- DELETE
@@ -279,8 +282,8 @@ app.post("/urls/:id/update", (req, res) => {
 // DELETE SPECIFIED URL
 
 app.post("/urls/:id/delete", (req, res) => {
-  if (!req.session.user_id) {
-    res.status(401).send("401 Error: You aren't authorized to perform this action");
+  if (!app.locals.email) {
+    return res.status(401).send("401 Error: You aren't authorized to perform this action");
   }
 
   let shortURL = req.body.delete;

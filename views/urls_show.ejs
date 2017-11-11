@@ -1,46 +1,49 @@
 <% include partials/_header.ejs %>
 
-<div class="container" id="showContainer">
-  <div class="wrapper">
+    <div class="container" id="showContainer">
+      <div class="wrapper">
 
-    <% if (!urlNotFound) { %>
+        <% if (!urlNotFound) { %>
 
-      <h3><%= longURL %> is now <span id="shortURL"><a href="<%= longURL %>"><%= shortURL %></span></a> !</h3>
+          <h3><%= longURL %> is now <span id="shortURL"><a href="<%= longURL %>"><%= shortURL %></span></a> !</h3>
 
-      <% if(userID) {
-        users[userID]["shortURLs"].forEach((url) => {
-          if (url === shortURL) { %>
+          <% if(email) {
+            users[userID]["shortURLs"].forEach((url) => {
+              if (url === shortURL) { %>
 
-            <form id="updateURL" action="/urls/<%= shortURL %>/update" method="POST">
-              <input type="text" name="update" placeholder="Want to edit this URL?">
-              <button class="btn btn-primary">Do it</button>
-            </form>
+                <form id="updateURL" action="/urls/<%= shortURL %>/update" method="POST">
+                  <input type="text" name="update" placeholder="Want to edit this URL?">
+                  <button class="btn btn-primary">Do it</button>
+                </form>
 
-          <form id="deleteURL" action="/urls/<%= shortURL %>/delete" method="POST">
-            <input type="hidden" name="delete" value="<%= shortURL %>">
-            <button class="btn btn-danger">Get Rid Of This URL</button>
-          </form>
+              <form id="deleteURL" action="/urls/<%= shortURL %>/delete" method="POST">
+                <input type="hidden" name="delete" value="<%= shortURL %>">
+                <button class="btn btn-danger">Get Rid Of This URL</button>
+              </form>
 
-          <% }
-        });
-      }
-    } else { %>
+              <% }
+            });
+          } %>
 
-      <p class ="errorMessage">That URL was not found in our database, try another one!</p>
-      <a id="urlNotFoundButton" class="badge badge-primary nav-button" href="/urls">See Your Shortened URLs</a>
+          <div id="urlViewCount">
+            <p><%= viewCount %></p>
+          </div>
+          <div id="uniqueViews">
+            <p><%= uniqueViews %></p>
+          </div>
+          <div id="timeStamp">
+            <p><%= timeStamp %></p>
+          </div>
 
-    <% } %>
 
-    <div id="urlViewCount">
-      <p><%= viewCount %></p>
+        <% } else { %>
+
+          <p class ="errorMessage">That URL was not found in our database, try another one!</p>
+          <a id="urlNotFoundButton" class="badge badge-primary nav-button" href="/urls">See Your Shortened URLs</a>
+
+        <% } %>
+
+      </div>
     </div>
-    <div id="uniqueViews">
-      <p><%= uniqueViews %></p>
-    </div>
-    <div id="timeStamp">
-      <p><%= timeStamp %></p>
-    </div>
-  </div>
-</div>
 
 <% include partials/_footer %>
