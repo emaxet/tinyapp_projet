@@ -1,3 +1,5 @@
+/*eslint camelcase: 0*/
+
 const express       = require("express");
 const bodyParser    = require("body-parser");
 const path          = require('path');
@@ -36,7 +38,7 @@ app.use((req, res, next) => {
 
 // ---------------------------------- HELPER FUNCTIONS
 
-function generateRandomString() {
+function generateRandomString () {
   let shortURL = "";
   let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890";
   for (let i = 0; i < 6; i++) {
@@ -57,17 +59,17 @@ function urlTimeStamp (shortURL) {
   return `${monthNames[month]} ${day}, ${year} at ${hours}:${mins}`;
 }
 
-function logShortURL(userID, shortURL, longURL, timeStamp) {
+function logShortURL (userID, shortURL, longURL) {
   urlDatabase[shortURL] = {
     'longURL': longURL,
     'viewCount': 0,
     'viewerIDs': [],
-    'timeStamp': urlTimeStamp()
+    'timeStamp': ""
   };
   users[userID]["shortURLs"].push(shortURL);
 }
 
-function urlViewCount(shortURL, viewCount) {
+function urlViewCount (shortURL, viewCount) {
   urlDatabase[shortURL][viewCount] += 1;
 }
 
@@ -78,7 +80,6 @@ function urlUniqueViews (userID, shortURL) {
   }
   return viewerArray.length;
 }
-
 
 // ----------------------------------- ROUTES
 
@@ -100,6 +101,7 @@ app.post("/urls", (req, res) => {
 
   if (app.locals.email) {
     logShortURL(userID, shortURL, longURL);
+    urlDatabase[shortURL]['timeStamp'] = urlTimeStamp();
     res.redirect(`/urls/${shortURL}`);
   } else {
     res.redirect("/urls");
@@ -222,11 +224,10 @@ app.get("/urls/:id", (req, res) => {
 app.get("/u/:shortURL", (req, res) => {
   let shortURL = req.params.shortURL;
 
-  if (urlDatabase[shortURL]) {
-    res.redirect(urlDatabase[shortURL]);
+  if (shortURL in urlDatabase) {
+    res.redirect(urlDatabase[shortURL]['longURL']);
   } else {
-    res.status(404);
-    res.redirect(`/urls/${shortURL}`);
+    res.redirect(404, `/urls/${shortURL}`);
   }
 });
 
@@ -239,20 +240,19 @@ app.get("/urls.json", (req, res) => {
 // READ REGISTRATION PAGE
 
 app.get("/register", (req, res) => {
+  if (app.locals.email) {
+    return res.redirect("/urls");
+  }
   res.render("register", { emailExists: false, emptyInputs: false });
 });
 
 // READ LOGIN PAGE
 
 app.get("/login", (req, res) => {
+  if (app.locals.email) {
+    return res.redirect("/urls");
+  }
   res.render("login", { noMatch: false } );
-});
-
-// READ MOST POPULAR (UNIQUE VIEWS) URLS
-
-app.get("/urls/popular", (req, res) => {
-
-  res.render("popular", )
 });
 
 // --------------- UPDATE
@@ -269,11 +269,9 @@ app.post("/urls/:id/update", (req, res) => {
   let userURLs = users[req.session.user_id]['shortURLs'];
   let newURL   = req.body.update;
 
-  userURLs.forEach((url) => {
-    if (url === shortURL) {
-      urlDatabase[shortURL]['longURL'] = newURL;
-    }
-  });
+  if (userURLs.indexOf(shortURL) > -1) {
+    urlDatabase[shortURL]['longURL'] = newURL;
+  }
   return res.redirect("/urls");
 });
 
@@ -289,14 +287,12 @@ app.post("/urls/:id/delete", (req, res) => {
   let shortURL = req.body.delete;
   let userURLs = users[req.session.user_id]['shortURLs'];
 
-  userURLs.forEach((url) => {
-    if (url === shortURL) {
-      let urlIndex = userURLs.indexOf(url);
-      userURLs.splice(urlIndex, 1);
-      delete urlDatabase[shortURL];
-      return res.redirect("/urls");
-    }
-  });
+  if (userURLs.indexOf(shortURL) > -1) {
+    let urlIndex = userURLs.indexOf(shortURL);
+    userURLs.splice(urlIndex, 1);
+    delete urlDatabase[shortURL];
+    return res.redirect("/urls");
+  }
 });
 
 // USER LOGOUT (REMOVE USER_ID COOKIE)
