@@ -155,10 +155,10 @@ app.post("/login", (req, res) => {
       return res.redirect("/urls");
     }
   }
-  passVars['noMatch'] = true;
   res.status(400);
-  res.render("login", { noMatch: false } );
+  res.render("login", { noMatch: true } );
 });
+
 
 // --------------- READ
 
